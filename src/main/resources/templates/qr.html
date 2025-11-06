@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>QR 출력</title>
+</head>
+<body>
+<h2 th:text="'품명: ' + ${item}"></h2>
+<h3 th:text="'금액: ' + ${amount} + '원'"></h3>
+<img src="/api/qr/image" alt="QR Code"/>
+</body>
+</html>
