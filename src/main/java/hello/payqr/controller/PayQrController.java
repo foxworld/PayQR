@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PayQrController {
     @GetMapping("/qr")
     public String showQrPage(Model model) {
-        model.addAttribute("token", "abc123");
+        model.addAttribute("item", "아메리카노"); // 품명
+        model.addAttribute("amount", 3000);     // 금액
         return "qr"; // templates/qr.html 렌더링
     }
 }

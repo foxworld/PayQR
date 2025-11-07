@@ -36,8 +36,7 @@ public class PayQrService {
         return UUID.randomUUID().toString();
     }
 
-    public byte[] generateQrImage(String token, int amount, String item) throws Exception {
-
+    public QrToken createNewToken(String token, int amount, String item) {
         LocalDateTime now = LocalDateTime.now();
         currentToken =QrToken.builder()
                 .token(token)
@@ -50,6 +49,13 @@ public class PayQrService {
         String resultToken = repository.save(currentToken);
         QrToken finidQrToken = repository.findById(token);
         log.info("findQrToken={}", finidQrToken);
+
+        return currentToken;
+    }
+
+    public byte[] generateQrImage(String token, int amount, String item) throws Exception {
+
+        currentToken = createNewToken(token, amount, item);
 
         String content = buildPayload(currentToken);
         Map<EncodeHintType, Object> hints = new HashMap<>();
