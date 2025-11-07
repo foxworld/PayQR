@@ -15,7 +15,7 @@ public class QrScheduler {
     private final SimpMessagingTemplate messagingTemplate;
     private final PayQrService service;
 
-    @Scheduled(fixedRate = 600000) // 10분마다 실행
+    @Scheduled(fixedRate = 10000)
     public void refreshQr() {
         String token = service.generateToken();
         QrToken qr = service.createNewToken(token, 3000, "아메리카노");
