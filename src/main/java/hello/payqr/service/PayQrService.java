@@ -101,7 +101,6 @@ public class PayQrService {
         return currentToken != null && !currentToken.isExpired() && currentToken.getToken().equals(token);
     }
 
-    @Scheduled(fixedRate = 600000) // 10분마다 실행 (600,000ms)
     public void refreshQrToken(String token, int amount, String item) {
 
         LocalDateTime now = LocalDateTime.now();

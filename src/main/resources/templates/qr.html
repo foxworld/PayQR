@@ -2,21 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>QR 출력</title>
-    <script>
-        const socket = new SockJS('/ws');
-        const stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, () => {
-        stompClient.subscribe('/topic/qr', (message) => {
-            const qrData = JSON.parse(message.body);
-            document.getElementById("qrImage").src = `/api/pay/qr/image?amount=${qrData.amount}&item=${qrData.item}&t=${Date.now()}`;
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
 <h2 th:text="'품명: ' + ${item}"></h2>
 <h3 th:text="'금액: ' + ${amount} + '원'"></h3>
-<img id="qrImage" th:src="'/api/pay/qr/image?amount=' + ${amount} + '&item=' + ${item}" alt="QR Code"/>
+
+<!-- 초기 QR 이미지 -->
+<img id="qrImage"
+     th:src="'/api/pay/qr/image?amount=' + ${amount} + '&item=' + ${item} + '&t=' + ${#dates.createNow().getTime()}"
+     alt="QR Code"/>
+
+<!-- WebSocket 스크립트: body 아래에 위치해야 DOM 접근 가능 -->
+<script th:inline="javascript">
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+        stompClient.subscribe('/topic/qr', (message) => {
+            console.log("받은 메시지:", message.body);
+            const qrData = JSON.parse(message.body);
+            const img = document.getElementById("qrImage");
+            img.src = `/api/pay/qr/image?amount=${qrData.amount}&item=${qrData.item}&t=${Date.now()}`;
+        });
+    });
+</script>
 </body>
 </html>
