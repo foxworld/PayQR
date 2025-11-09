@@ -1,7 +1,9 @@
 package hello.payqr.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import hello.payqr.domain.QrToken;
+import hello.payqr.dto.PayloadDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -15,12 +17,14 @@ public class QrScheduler {
     private final SimpMessagingTemplate messagingTemplate;
     private final PayQrService service;
 
-    @Scheduled(fixedRate = 10000)
-    public void refreshQr() {
+    @Scheduled(fixedRate = 60000)
+    public void refreshQr() throws JsonProcessingException {
         String token = service.generateToken();
         QrToken qr = service.createNewToken(token, 3000, "아메리카노");
 
-        messagingTemplate.convertAndSend("/topic/qr", qr); // 클라이언트에 실시간 전송
+        String jsonString = service.buildPayload(qr);
+
+        messagingTemplate.convertAndSend("/topic/qr", jsonString); // 클라이언트에 실시간 전송
         log.info("🔄 QR 자동 갱신됨: {}", qr.getToken());
     }
 

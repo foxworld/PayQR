@@ -7,6 +7,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import de.huxhorn.sulky.ulid.ULID;
 import hello.payqr.domain.QrToken;
 import hello.payqr.dto.PayloadDto;
 import hello.payqr.repository.PayQrRepository;
@@ -33,7 +34,8 @@ public class PayQrService {
     private QrToken currentToken;
 
     public String generateToken() {
-        return UUID.randomUUID().toString();
+        return new ULID().nextULID();
+        //return UUID.randomUUID().toString();
     }
 
     public QrToken createNewToken(String token, int amount, String item) {
@@ -46,7 +48,7 @@ public class PayQrService {
                 .expiresAt(now.plus(Duration.ofMinutes(10)))
                 .build();
 
-        String resultToken = repository.save(currentToken);
+        repository.save(currentToken);
         QrToken finidQrToken = repository.findById(token);
         log.info("findQrToken={}", finidQrToken);
 
@@ -68,7 +70,7 @@ public class PayQrService {
         return out.toByteArray();
     }
 
-    private String buildPayload(QrToken qrToken) throws JsonProcessingException {
+    public String buildPayload(QrToken qrToken) throws JsonProcessingException {
         long createdAt = qrToken.getCreatedAt().atZone(ZoneId.of("Asia/Seoul")).toEpochSecond();
         long expiresAt = qrToken.getExpiresAt().plus(Duration.ofMinutes(10)).atZone(ZoneId.of("Asia/Seoul")).toEpochSecond();
 
