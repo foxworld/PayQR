@@ -14,8 +14,8 @@ public class PayQrRepository {
 
     private final JpaPayQrRepository repository;
 
-    public String save(QrToken qrToken) {
-        return repository.save(qrToken).getToken();
+    public QrToken save(QrToken qrToken) {
+        return repository.save(qrToken);
     }
 
     public QrToken findById(String id) {

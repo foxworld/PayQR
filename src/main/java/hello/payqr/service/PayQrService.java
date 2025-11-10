@@ -48,9 +48,8 @@ public class PayQrService {
                 .expiresAt(now.plus(Duration.ofMinutes(10)))
                 .build();
 
-        repository.save(currentToken);
-        QrToken finidQrToken = repository.findById(token);
-        log.info("findQrToken={}", finidQrToken);
+        QrToken qrToken = repository.save(currentToken);
+        log.info("qrToken={}", qrToken);
 
         return currentToken;
     }
