@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>QR 출력</title>
+    <script>
+        let countdown = 60;
+
+        function refreshQrImage() {
+            const qrImage = document.getElementById("qrImage");
+            const amount = qrImage.getAttribute("data-amount");
+            const item = qrImage.getAttribute("data-item");
+            const timestamp = new Date().getTime();
+
+            qrImage.src = `/api/pay/qr/image?amount=${amount}&item=${item}&t=${timestamp}`;
+            document.getElementById("refreshTime").textContent =
+                `QR 갱신 시각: ${new Date().toLocaleTimeString()}`;
+
+            countdown = 300; // 카운트다운 초기화
+        }
+
+        function updateCountdown() {
+            if (countdown > 0) {
+                countdown--;
+                document.getElementById("countdown").textContent =
+                    `다음 갱신까지: ${countdown}초`;
+            }
+        }
+
+        window.onload = function () {
+            refreshQrImage(); // 최초 QR 갱신
+            setInterval(refreshQrImage, 300000); // 5분마다 QR 갱신
+            setInterval(updateCountdown, 1000); // 1초마다 카운트다운 감소
+        };
+    </script>
+</head>
+<body>
+<h2 th:text="'품명: ' + ${item}"></h2>
+<h3 th:text="'금액: ' + ${amount} + '원'"></h3>
+
+<img id="qrImage"
+     th:src="'/api/pay/qr/image?amount=' + ${amount} + '&item=' + ${item} + '&t=' + ${#dates.createNow().getTime()}"
+     th:attr="data-amount=${amount},data-item=${item}"
+     alt="QR Code"/>
+
+<p><span id="refreshTime">QR 갱신 시각: 초기 로딩 중...</span></p>
+<p><span id="countdown">다음 갱신까지: 60초</span></p>
+</body>
+</html>

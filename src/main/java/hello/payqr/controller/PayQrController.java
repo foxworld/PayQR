@@ -16,4 +16,11 @@ public class PayQrController {
         model.addAttribute("amount", 3000);     // 금액
         return "qr"; // templates/qr.html 렌더링
     }
+
+    @GetMapping("/qr_salf")
+    public String showQrSalfPage(Model model) {
+        model.addAttribute("item", "아메리카노"); // 품명
+        model.addAttribute("amount", 3000);     // 금액
+        return "qr_salf"; // templates/qr.html 렌더링
+    }
 }

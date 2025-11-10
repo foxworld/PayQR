@@ -2,8 +2,8 @@ package hello.payqr.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import hello.payqr.config.WebSocketSessionManager;
 import hello.payqr.domain.QrToken;
-import hello.payqr.dto.PayloadDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,9 +16,15 @@ import org.springframework.stereotype.Service;
 public class QrScheduler {
     private final SimpMessagingTemplate messagingTemplate;
     private final PayQrService service;
+    private final WebSocketSessionManager sessionManager;
 
     @Scheduled(fixedRate = 60000)
     public void refreshQr() throws JsonProcessingException {
+        if (!sessionManager.hasActiveSessions()) {
+            log.info("⏸️ WebSocket 연결 없음. QR 전송 생략.");
+            return;
+        }
+
         String token = service.generateToken();
         QrToken qr = service.createNewToken(token, 3000, "아메리카노");
 

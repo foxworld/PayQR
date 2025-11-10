@@ -14,7 +14,25 @@
      th:src="'/api/pay/qr/image?amount=' + ${amount} + '&item=' + ${item} + '&t=' + ${#dates.createNow().getTime()}"
      alt="QR Code"/>
 
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', () => {
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            stompClient.subscribe('/topic/qr', (message) => {
+                console.log("받은 메시지:", message.body);
+                const qrData = JSON.parse(message.body);
+                const img = document.getElementById("qrImage");
+                img.src = `/api/pay/qr/image?amount=${qrData.amount}&item=${qrData.item}&t=${Date.now()}`;
+            });
+        });
+    });
+</script>
+
+
 <!-- WebSocket 스크립트: body 아래에 위치해야 DOM 접근 가능 -->
+<!--
 <script th:inline="javascript">
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
@@ -28,5 +46,6 @@
         });
     });
 </script>
+-->
 </body>
 </html>
