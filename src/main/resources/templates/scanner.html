@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>QR 인식기</title>
+    <style>
+        #video { width: 400px; height: 300px; border: 1px solid #ccc; }
+        #result { margin-top: 10px; font-size: 1.2em; color: green; }
+    </style>
+</head>
+<body>
+<h2>📷 QR 코드 인식기</h2>
+<button id="startBtn">카메라 시작</button>
+<video id="video" autoplay></video>
+<div id="result">QR 결과: 없음</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+    const video = document.getElementById('video');
+    const resultDiv = document.getElementById('result');
+    const startBtn = document.getElementById('startBtn');
+
+    let scanning = false;
+
+    startBtn.addEventListener('click', () => {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => {
+                video.srcObject = stream;
+                scanning = true;
+                scanLoop();
+            })
+            .catch(err => {
+                console.error("카메라 접근 실패:", err);
+            });
+    });
+
+    function scanLoop() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        const scan = () => {
+            if (!scanning) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code) {
+                resultDiv.textContent = "QR 결과: " + code.data;
+                scanning = false;
+                video.srcObject.getTracks().forEach(track => track.stop());
+            } else {
+                requestAnimationFrame(scan);
+            }
+        };
+
+        requestAnimationFrame(scan);
+    }
+</script>
+</body>
+</html>
